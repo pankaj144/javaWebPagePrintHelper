@@ -175,7 +175,7 @@ public class JavaProtocolApp {
                         done = true;
                         PrintJobWatcher.this.notify();
                          System.out.print(" d!");
-                        // System.exit(0);
+                         System.exit(0);
                     }
                 }
             });
@@ -251,8 +251,17 @@ public class JavaProtocolApp {
 			in.close();
 
 			// print result
-                        showData(extractData(response.toString()));
-                        printData(extractData(response.toString()));
+                        
+                        String toPrint = cleanData(response.toString());
+                        System.out.println("CLEAN DATA="+toPrint);
+                        //using json.org library
+//                        try{
+//                            toPrint = extractData(response.toString());
+//                        showData(toPrint);
+//                        }catch(Exception exp){
+//                            showData("Error on Erxtraction");
+//                        }
+                        printData(toPrint);
 			System.out.println(response.toString());
 		} else {
 			System.out.println("POST request not worked");
@@ -372,6 +381,12 @@ public class JavaProtocolApp {
         f.setSize(600,600);  
         f.setLayout(null);  
         f.setVisible(true);
+    }
+    
+    public static String cleanData(String rawData){
+        String modified = rawData.replace("{\"data\":\"", "");
+        String finalString = modified.replace("\"}", "");
+        return finalString;
     }
     
 }
