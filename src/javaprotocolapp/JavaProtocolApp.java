@@ -49,7 +49,8 @@ public class JavaProtocolApp {
      * @param args the command line arguments
      */
     private static final String GET_URL = "http://stag-api.futtkr.com//api/user/app_version";
-    private static final String POST_URL = "http://stag-api.futtkr.com/api/shop/getDataToPrint";
+    private static String POST_URL = "http://stag-api.futtkr.com/api/shop/getDataToPrint";
+//    private static  String POST_URL = "http://api.futtkr.com/api/shop/getDataToPrint";
     private static final String POST_PARAMS = "1";  
     
     public static void main(String[] args) {
@@ -60,9 +61,13 @@ public class JavaProtocolApp {
                String replaceProtoclTag = argument.replaceAll("myappprotocol:", "");
               
                System.out.print("This is my Protocol java Application");
+               if(replaceProtoclTag.contains("LIVE")){
+                   replaceProtoclTag = replaceProtoclTag.replaceAll("LIVE","");
+                   POST_URL = "http://api.futtkr.com/api/shop/getDataToPrint";
+               }
                sendPOST(replaceProtoclTag);
             }else{
-            sendPOST("GZB_CR_PMCR_13497");
+            sendPOST("GZB_CR_PMCR_11879");
         }
           
         }catch(IOException exp){
@@ -251,16 +256,18 @@ public class JavaProtocolApp {
 			in.close();
 
 			// print result
+                        String toPrint="";
                         
-                        String toPrint = cleanData(response.toString());
-                        System.out.println("CLEAN DATA="+toPrint);
+                        //work around
+//                        toPrint = cleanData(response.toString());
+//                        System.out.println("CLEAN DATA="+toPrint);
                         //using json.org library
-//                        try{
-//                            toPrint = extractData(response.toString());
-//                        showData(toPrint);
-//                        }catch(Exception exp){
-//                            showData("Error on Erxtraction");
-//                        }
+                        try{
+                            toPrint = extractData(response.toString());
+                        showData(toPrint);
+                        }catch(Exception exp){
+                            showData("Error on Erxtraction");
+                        }
                         printData(toPrint);
 			System.out.println(response.toString());
 		} else {
