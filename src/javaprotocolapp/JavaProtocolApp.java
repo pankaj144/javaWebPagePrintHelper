@@ -5,6 +5,7 @@
  */
 package javaprotocolapp;
 
+import java.awt.FlowLayout;
 import java.awt.print.PrinterJob;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -35,6 +36,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.print.attribute.Attribute;
 import javax.print.attribute.AttributeSet;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import org.json.JSONObject;
 
 
@@ -49,8 +53,8 @@ public class JavaProtocolApp {
      * @param args the command line arguments
      */
     private static final String GET_URL = "http://stag-api.futtkr.com//api/user/app_version";
-    private static String POST_URL = "http://stag-api.futtkr.com/api/shop/getDataToPrint";
-//    private static  String POST_URL = "http://api.futtkr.com/api/shop/getDataToPrint";
+//    private static String POST_URL = "http://stage-api.futtkr.com/api/shop/getDataToPrint";
+    private static  String POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
     private static final String POST_PARAMS = "1";  
     
     public static void main(String[] args) {
@@ -63,11 +67,11 @@ public class JavaProtocolApp {
                System.out.print("This is my Protocol java Application");
                if(replaceProtoclTag.contains("LIVE")){
                    replaceProtoclTag = replaceProtoclTag.replaceAll("LIVE","");
-                   POST_URL = "http://api.futtkr.com/api/shop/getDataToPrint";
+                   POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
                }
                sendPOST(replaceProtoclTag);
             }else{
-            sendPOST("GZB_CR_PMCR_11879");
+            sendPOST("NOI_S168_UC_51006");
         }
           
         }catch(IOException exp){
@@ -264,7 +268,7 @@ public class JavaProtocolApp {
                         //using json.org library
                         try{
                             toPrint = extractData(response.toString());
-                        showData(toPrint);
+//                        showDataV2(toPrint);
                         }catch(Exception exp){
                             showData("Error on Erxtraction");
                         }
@@ -308,10 +312,11 @@ public class JavaProtocolApp {
 //        for(int i = 0;i < args.length;i++){
 //            sb.append(args[i]);//now original string is changed  
 //        }
-       
+       String attribute = "";
          for (PrintService printService : printServices) {
                 String sPrinterName = printService.getName();
-                if (sPrinterName.equals("POS-58")) {
+                attribute += "--Printer Name---\n";
+                if (sPrinterName.equals("RETSOL RTP-80") || sPrinterName.equals("POS-58")) { //POS-58ew  
                     mPrinter = printService;
                     bFoundPrinter = true;
                 }
@@ -323,8 +328,11 @@ public class JavaProtocolApp {
                     String attributeValue;attributeName = a.getName();
                     attributeValue = att.get(a.getClass()).toString();
                     System.out.println(attributeName +" : " + attributeValue);
+                    attribute += attributeName +" : " + attributeValue +"\n";
                 }
+                attribute += "----Printer END-----------------\n";
          }
+//         showDataV2(attribute);
           PrintService service1 = PrintServiceLookup.lookupDefaultPrintService();
           //System.out.println("Default Printer::" +" : " + service1.getName());
         if(bFoundPrinter){
@@ -381,19 +389,46 @@ public class JavaProtocolApp {
     }
     
     public static  void showData(String data){
-         JFrame f=new JFrame("Protocol Content");  
+        JFrame f=new JFrame("Protocol Content");  
         JButton b=new JButton(data);  
+        System.out.println("Data="+data);
         b.setBounds(0,0,500,500);  
+        
         f.add(b);  
         f.setSize(600,600);  
         f.setLayout(null);  
         f.setVisible(true);
     }
     
+    
     public static String cleanData(String rawData){
         String modified = rawData.replace("{\"data\":\"", "");
         String finalString = modified.replace("\"}", "");
         return finalString;
+    }
+    
+    public static void showDataV2(String data){
+        // Create and set up the window.  
+        System.out.println("Data="+data);
+        final JFrame frame = new JFrame("Scroll Pane Example");  
+  
+        // Display the window.  
+         
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
+  
+        // set flow layout for the frame  
+        frame.getContentPane().setLayout(new FlowLayout());  
+  
+        JTextArea textArea = new JTextArea(20,20);  
+        textArea.append("data="+data);
+        JScrollPane scrollableTextArea = new JScrollPane(textArea);  
+  
+        scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
+        scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
+  
+        frame.setSize(500, 500);  
+        frame.setVisible(true); 
+        frame.getContentPane().add(scrollableTextArea);  
     }
     
 }
