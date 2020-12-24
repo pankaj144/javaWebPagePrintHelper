@@ -240,7 +240,7 @@ public class JavaProtocolApp {
     private static void sendPOST(String orderId) throws IOException {
 
         if (orderId.equalsIgnoreCase("NOI_S168_UC_51006")) {
-//            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
+            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
             String[] result = JavaProtocolApp.readDataToFile();
             if(result != null && result.length == 2){
                 JavaProtocolApp.makeWindow4Printer(result[0],result[1]);
