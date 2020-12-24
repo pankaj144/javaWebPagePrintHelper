@@ -28,6 +28,7 @@ import javax.print.event.PrintJobEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -42,6 +43,16 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import org.json.JSONObject;
+
+import java.io.File;  // Import the File class
+import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.Scanner; // Import the Scanner class to read text files
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
 
 /**
  *
@@ -229,7 +240,10 @@ public class JavaProtocolApp {
     private static void sendPOST(String orderId) throws IOException {
 
         if (orderId.equalsIgnoreCase("NOI_S168_UC_51006")) {
-            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
+//            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
+            JavaProtocolApp.makeWindow4Printer("PANKAJ","58");
+//            JavaProtocolApp.writeDataToFile("PANKAJ KUMAR");
+            JavaProtocolApp.readDataToFile();
         } else {
 
             URL obj = new URL(POST_URL);
@@ -431,6 +445,82 @@ public class JavaProtocolApp {
         frame.setSize(500, 500);
         frame.setVisible(true);
         frame.getContentPane().add(scrollableTextArea);
+    }
+    
+    
+    private static void writeDataToFile(String data){
+        try {           
+           File myObj = new File("printerData.txt");
+           if (myObj.createNewFile()) {
+              FileWriter myWriter = new FileWriter("printerData.txt");
+              myWriter.write(data);
+              myWriter.close();
+              System.out.println("Successfully wrote to the file.");
+            } else {
+              System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+              System.out.println("An error occurred.");
+              e.printStackTrace();
+        }
+    }
+    
+    private static String readDataToFile(){
+        try {
+            File myObj = new File("printerData.txt");
+            Scanner myReader = new Scanner(myObj);
+            String data = null;
+            while (myReader.hasNextLine()) {
+               data = myReader.nextLine();
+               System.out.println(data);
+            }
+            myReader.close();
+            return  data;
+         } catch (FileNotFoundException e) {
+             System.out.println("An error occurred.");
+             e.printStackTrace();
+         }
+        return null;
+    }
+    
+    
+    private static void makeWindow4Printer(String printerName,String size){
+        JFrame f= new JFrame();
+        JTextField tf2,tf4;
+        JLabel  tf1,tf3;
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //close java application on window close
+        
+        JButton b1;  
+        tf1=new JLabel("PrinterName :");  
+        tf1.setBounds(50,50,150,20);  
+         
+        
+        tf2=new JTextField(printerName);  
+        tf2.setBounds(50,80,150,20);  
+        
+        tf3=new JLabel("Printer Size");  
+        tf3.setBounds(50,110,100,20);     
+        
+        tf4=new JTextField(size);  
+        tf4.setBounds(50,140,150,20);  
+        
+        b1=new JButton("SUBMIT");  
+        b1.setBounds(50,180,150,20);
+        b1.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             if(tf2.getText() != null &&tf4.getText() != null){
+                 String printerName = tf2.getText();
+                 String PrinterSize = tf4.getText();
+                 JavaProtocolApp.writeDataToFile(printerName+","+PrinterSize);
+                 System.out.println(printerName+" "+PrinterSize);
+             }
+         }
+      });
+        //b1.addActionListener(this);   
+        f.add(tf1);f.add(tf2);f.add(tf3);f.add(tf4);f.add(b1);  
+        f.setSize(300,300);  
+        f.setLayout(null);  
+        f.setVisible(true);  
     }
 
 }
