@@ -241,9 +241,12 @@ public class JavaProtocolApp {
 
         if (orderId.equalsIgnoreCase("NOI_S168_UC_51006")) {
 //            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
-            JavaProtocolApp.makeWindow4Printer("PANKAJ","58");
-//            JavaProtocolApp.writeDataToFile("PANKAJ KUMAR");
-            JavaProtocolApp.readDataToFile();
+            String[] result = JavaProtocolApp.readDataToFile();
+            if(result != null && result.length == 2){
+                JavaProtocolApp.makeWindow4Printer(result[0],result[1]);
+            }else{
+                JavaProtocolApp.makeWindow4Printer("","");
+            }
         } else {
 
             URL obj = new URL(POST_URL);
@@ -332,33 +335,40 @@ public class JavaProtocolApp {
 //            sb.append(args[i]);//now original string is changed  
 //        }
         String attribute = "";
+        String[] printerDetail = JavaProtocolApp.readDataToFile();
+        if(printerDetail == null){
+           return;
+        }
+        String currentPrinterName = printerDetail[0];
+        String currentPrintSize = printerDetail[1];
         for (PrintService printService : printServices) {
             String sPrinterName = printService.getName();
             attribute += "--Printer Name---\n";
-            if (sPrinterName.equals("RETSOL RTP-80") || sPrinterName.equals("POS-58")) { //POS-58ew  
+            if (sPrinterName.equalsIgnoreCase(currentPrinterName)) { //POS-58ew  
                 mPrinter = printService;
                 bFoundPrinter = true;
+                break;
             }
 
             System.out.println("Printer Name::" + " : " + sPrinterName);
-            AttributeSet att = printService.getAttributes();
-            for (Attribute a : att.toArray()) {
-                String attributeName;
-                String attributeValue;
-                attributeName = a.getName();
-                attributeValue = att.get(a.getClass()).toString();
-                System.out.println(attributeName + " : " + attributeValue);
-                attribute += attributeName + " : " + attributeValue + "\n";
-            }
-            attribute += "----Printer END-----------------\n";
+//            AttributeSet att = printService.getAttributes();
+//            for (Attribute a : att.toArray()) {
+//                String attributeName;
+//                String attributeValue;
+//                attributeName = a.getName();
+//                attributeValue = att.get(a.getClass()).toString();
+//                System.out.println(attributeName + " : " + attributeValue);
+//                attribute += attributeName + " : " + attributeValue + "\n";
+//            }
+//            attribute += "----Printer END-----------------\n";
         }
 //         showDataV2(attribute);
         PrintService service1 = PrintServiceLookup.lookupDefaultPrintService();
         //System.out.println("Default Printer::" +" : " + service1.getName());
         if (bFoundPrinter) {
-            System.out.println("Printer POS-58 found");
+            System.out.println("Printer  found");
         } else {
-            System.out.println("Printer POS-58 Not found");
+            System.out.println("Printer  Not found");
         }
 
         try {
@@ -449,23 +459,19 @@ public class JavaProtocolApp {
     
     
     private static void writeDataToFile(String data){
-        try {           
-           File myObj = new File("printerData.txt");
-           if (myObj.createNewFile()) {
+        try {         
               FileWriter myWriter = new FileWriter("printerData.txt");
               myWriter.write(data);
               myWriter.close();
               System.out.println("Successfully wrote to the file.");
-            } else {
-              System.out.println("File already exists.");
-            }
+            
         } catch (IOException e) {
               System.out.println("An error occurred.");
               e.printStackTrace();
         }
     }
     
-    private static String readDataToFile(){
+    private static String[] readDataToFile(){
         try {
             File myObj = new File("printerData.txt");
             Scanner myReader = new Scanner(myObj);
@@ -475,7 +481,10 @@ public class JavaProtocolApp {
                System.out.println(data);
             }
             myReader.close();
-            return  data;
+            if(data != null){
+                return data.split(",");
+            }
+            return  null;
          } catch (FileNotFoundException e) {
              System.out.println("An error occurred.");
              e.printStackTrace();
