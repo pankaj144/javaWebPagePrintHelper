@@ -52,6 +52,7 @@ import java.io.IOException;  // Import the IOException class to handle errors
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.nio.file.*;
 
 
 /**
@@ -67,9 +68,20 @@ public class JavaProtocolApp {
 //    private static String POST_URL = "http://stage-api.futtkr.com/api/shop/getDataToPrint";
     private static String POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
     private static final String POST_PARAMS = "1";
-
+    private static final String PRINTER_DATA_FILE = "C:\\Program Files (x86)\\PrinterHelper\\printerData.txt";
+//    private static final String PRINTER_DATA_FILE = "C:\\Users\\printerData.txt";
+    private static String[] printerDetail; 
+    private static  String currentPrinterName;
+    private static  String currentPrintSize;
+    
     public static void main(String[] args) {
         try {
+            try{
+                 printerDetail = JavaProtocolApp.readDataToFile(); 
+                 currentPrinterName = printerDetail[0];
+                 currentPrintSize = printerDetail[1];
+            }catch(Exception exp){
+            }
             JavaProtocolApp japp = new JavaProtocolApp();
             if (args.length > 0) {
                 String argument = args[0];
@@ -80,9 +92,10 @@ public class JavaProtocolApp {
                     replaceProtoclTag = replaceProtoclTag.replaceAll("LIVE", "");
                     POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
                 }
-                sendPOST(replaceProtoclTag);
+                
+                sendPOST(replaceProtoclTag,currentPrintSize);
             } else {
-                sendPOST("NOI_S168_UC_51006");
+                sendPOST("NOI_S168_UC_51007",currentPrintSize);
             }
 
         } catch (IOException exp) {
@@ -237,10 +250,10 @@ public class JavaProtocolApp {
 
     }
 
-    private static void sendPOST(String orderId) throws IOException {
+    private static void sendPOST(String orderId,String size) throws IOException {
 
         if (orderId.equalsIgnoreCase("NOI_S168_UC_51006")) {
-            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
+//            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
             String[] result = JavaProtocolApp.readDataToFile();
             if(result != null && result.length == 2){
                 JavaProtocolApp.makeWindow4Printer(result[0],result[1]);
@@ -258,7 +271,7 @@ public class JavaProtocolApp {
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
 //		os.write(POST_PARAMS.getBytes(StandardCharsets.UTF_8));
-            os.write(getPostData(orderId));
+            os.write(getPostData(orderId,size));
             os.flush();
             os.close();
             // For POST only - END
@@ -307,9 +320,10 @@ public class JavaProtocolApp {
         }
     }
 
-    static byte[] getPostData(String myOrderId) throws UnsupportedEncodingException {
+    static byte[] getPostData(String myOrderId,String size) throws UnsupportedEncodingException {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("orderId", myOrderId);
+        params.put("size",size);
         StringBuilder postData = new StringBuilder();
         for (Map.Entry<String, Object> param : params.entrySet()) {
             if (postData.length() != 0) {
@@ -335,32 +349,33 @@ public class JavaProtocolApp {
 //            sb.append(args[i]);//now original string is changed  
 //        }
         String attribute = "";
-        String[] printerDetail = JavaProtocolApp.readDataToFile();
         if(printerDetail == null){
+           System.out.println("Printer printerDetail::" + " Null ");
            return;
         }
-        String currentPrinterName = printerDetail[0];
-        String currentPrintSize = printerDetail[1];
+        
+      
+       
         for (PrintService printService : printServices) {
             String sPrinterName = printService.getName();
             attribute += "--Printer Name---\n";
             if (sPrinterName.equalsIgnoreCase(currentPrinterName)) { //POS-58ew  
                 mPrinter = printService;
                 bFoundPrinter = true;
-                break;
+//                break;
             }
 
             System.out.println("Printer Name::" + " : " + sPrinterName);
-//            AttributeSet att = printService.getAttributes();
-//            for (Attribute a : att.toArray()) {
-//                String attributeName;
-//                String attributeValue;
-//                attributeName = a.getName();
-//                attributeValue = att.get(a.getClass()).toString();
-//                System.out.println(attributeName + " : " + attributeValue);
-//                attribute += attributeName + " : " + attributeValue + "\n";
-//            }
-//            attribute += "----Printer END-----------------\n";
+            AttributeSet att = printService.getAttributes();
+            for (Attribute a : att.toArray()) {
+                String attributeName;
+                String attributeValue;
+                attributeName = a.getName();
+                attributeValue = att.get(a.getClass()).toString();
+                System.out.println(attributeName + " : " + attributeValue);
+                attribute += attributeName + " : " + attributeValue + "\n";
+            }
+            attribute += "----Printer END-----------------\n";
         }
 //         showDataV2(attribute);
         PrintService service1 = PrintServiceLookup.lookupDefaultPrintService();
@@ -459,8 +474,22 @@ public class JavaProtocolApp {
     
     
     private static void writeDataToFile(String data){
-        try {         
-              FileWriter myWriter = new FileWriter("printerData.txt");
+        try { 
+              File file = new File(PRINTER_DATA_FILE);
+ 
+              if (file.exists()) {
+                  System.out.println("File exists!!");
+                  //file.setWritable(true);
+//                  Runtime.getRuntime().exec("ICACLS +"PRINTER_DATA_FILE+" /grant \"Users\":F");
+              } else {
+                 Path path = Paths.get(PRINTER_DATA_FILE); //creates Path instance   
+                 Path p= Files.createFile(path);     //creates file at specified location  
+//                 file = new File(PRINTER_DATA_FILE);
+                 Runtime.getRuntime().exec("ICACLS "+PRINTER_DATA_FILE+" /grant \"Users\":F");
+                 System.out.println("File Created at Path: "+p);  
+                 System.out.println("File doesn't exist or program doesn't have access to the file");
+              }
+              FileWriter myWriter = new FileWriter(PRINTER_DATA_FILE);
               myWriter.write(data);
               myWriter.close();
               System.out.println("Successfully wrote to the file.");
@@ -473,7 +502,7 @@ public class JavaProtocolApp {
     
     private static String[] readDataToFile(){
         try {
-            File myObj = new File("printerData.txt");
+            File myObj = new File(PRINTER_DATA_FILE);
             Scanner myReader = new Scanner(myObj);
             String data = null;
             while (myReader.hasNextLine()) {
@@ -522,6 +551,7 @@ public class JavaProtocolApp {
                  String PrinterSize = tf4.getText();
                  JavaProtocolApp.writeDataToFile(printerName+","+PrinterSize);
                  System.out.println(printerName+" "+PrinterSize);
+                 f.dispose();
              }
          }
       });
