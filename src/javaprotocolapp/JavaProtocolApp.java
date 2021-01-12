@@ -67,6 +67,7 @@ public class JavaProtocolApp {
     private static final String GET_URL = "http://stag-api.futtkr.com//api/user/app_version";
 //    private static String POST_URL = "http://stage-api.futtkr.com/api/shop/getDataToPrint";
     private static String POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
+//    private static String POST_URL = "http://api.futtkr.com/api/shop/getDataToPrint";
     private static final String POST_PARAMS = "1";
     private static final String PRINTER_DATA_FILE = "C:\\Program Files (x86)\\PrinterHelper\\printerData.txt";
 //    private static final String PRINTER_DATA_FILE = "C:\\Users\\printerData.txt";
@@ -90,12 +91,12 @@ public class JavaProtocolApp {
                 System.out.print("This is my Protocol java Application");
                 if (replaceProtoclTag.contains("LIVE")) {
                     replaceProtoclTag = replaceProtoclTag.replaceAll("LIVE", "");
-                    POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
+//                    POST_URL = "http://demo-api.futtkr.com/api/shop/getDataToPrint";
                 }
                 
                 sendPOST(replaceProtoclTag,currentPrintSize);
             } else {
-                sendPOST("NOI_S168_UC_51007",currentPrintSize);
+                sendPOST("GZB_CR_PMCR_73671",currentPrintSize);
             }
 
         } catch (IOException exp) {
@@ -253,7 +254,7 @@ public class JavaProtocolApp {
     private static void sendPOST(String orderId,String size) throws IOException {
 
         if (orderId.equalsIgnoreCase("NOI_S168_UC_51006")) {
-//            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
+            Desktop.getDesktop().open(new File("C:\\Program Files (x86)\\PrinterHelper\\regEdit.reg"));
             String[] result = JavaProtocolApp.readDataToFile();
             if(result != null && result.length == 2){
                 JavaProtocolApp.makeWindow4Printer(result[0],result[1]);
